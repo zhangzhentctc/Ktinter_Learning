@@ -1,4 +1,5 @@
-from tkinter import *
+from Tkinter import *
+import os
 import time
 import math
 import random
@@ -10,17 +11,21 @@ ERROR = -1
 RET_OK = 0
 class smile_game():
     def __init__(self):
-        self.width_new = 150
-        self.height_new = 150
+        self.pix = 200
+        self.width_new = self.pix
+        self.height_new = self.pix
+        self.subsample = int(math.ceil(1500/self.pix)) + 1
         self.top_margin = 10
         self.left_margin = 10
         self.right_x = 0
         self.right_y = 0
-        self.positive_faces = 1
-        self.negative_faces = 1
+        self.positive_faces = 8
+        self.negative_faces = 11
         self.count = 0
         self.count_success = 0
         self.start_time = 0
+        self.path_top = os.path.abspath('.')
+        print("path:",self.path_top)
 
     def show_new(self):
         self.right_x = random.randint(0, X_COUNT - 1)
@@ -48,8 +53,8 @@ class smile_game():
         self.y_num = math.floor(event.y / self.height_new)
         if self.x_num == self.right_x and self.y_num == self.right_y:
             self.count_success += 1
-        self.cv.delete("all")
         time.sleep(0.3)
+        self.cv.delete("all")
         self.show_new()
 
 
@@ -94,11 +99,13 @@ class smile_game():
         self.imgs_positive=[]
         self.imgs_negative=[]
         for i in range(0, self.positive_faces):
-            img = PhotoImage(file='./' + 'positive_' + str(i) + '.gif')
+            img = PhotoImage(file= str(self.path_top) + '/positive_pics/' + 'positive_' + str(i) + '.gif')
+            img = img.subsample(self.subsample)
             self.imgs_positive.append(img )
 
         for i in range(0, self.negative_faces):
-            img = PhotoImage(file='./' + 'negative_' + str(i) + '.gif')
+            img = PhotoImage(file= str(self.path_top) + '/negative_pics/' + 'negative_' + str(i) + '.gif')
+            img = img.subsample(self.subsample)
             self.imgs_negative.append(img)
 
 
