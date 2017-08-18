@@ -12,10 +12,15 @@ class smile_game():
     def __init__(self):
         self.width_new = 150
         self.height_new = 150
+        self.top_margin = 10
+        self.left_margin = 10
         self.right_x = 0
         self.right_y = 0
         self.positive_faces = 1
         self.negative_faces = 1
+        self.count = 0
+        self.count_success = 0
+        self.start_time = 0
 
     def show_new(self):
         self.right_x = random.randint(0, X_COUNT - 1)
@@ -31,14 +36,18 @@ class smile_game():
                     ret, image = self.get_negative_face()
                     if ret == ERROR:
                         return ERROR
-                self.cv.create_image(((x * 2 + 1) * self.width_new / 2, (y * 2 + 1) * self.height_new / 2), image=image)
+                self.cv.create_image(((x * 2 + 1) * self.width_new / 2 + self.left_margin, \
+                                      (y * 2 + 1) * self.height_new / 2 + self.top_margin), image=image)
         return RET_OK
 
 
     def button_callback(self,event):
         print ("clicked at", event.x, event.y)
+        self.count += 1
         self.x_num = math.floor(event.x / self.width_new)
         self.y_num = math.floor(event.y / self.height_new)
+        if self.x_num == self.right_x and self.y_num == self.right_y:
+            self.count_success += 1
         self.cv.delete("all")
         time.sleep(0.3)
         self.show_new()
@@ -60,8 +69,8 @@ class smile_game():
         self.cv.delete("rectangle")
         if num_x > X_COUNT - 1 or num_y > Y_COUNT - 1:
             return
-        tangle = self.cv.create_rectangle(num_x * self.width_new + 1, num_y * self.height_new + 1, \
-                                          (num_x + 1) * self.width_new, (num_y + 1) * self.height_new, \
+        tangle = self.cv.create_rectangle(num_x * self.width_new + self.left_margin, num_y * self.height_new + self.top_margin, \
+                                          (num_x + 1) * self.width_new + self.left_margin, (num_y + 1) * self.height_new + self.top_margin, \
                                  outline=color, tags=("rectangle"))
 
 
@@ -82,29 +91,53 @@ class smile_game():
 
 
     def init_faces(self):
-        # imgs = [PhotoImage(file='/tmp/' + str(i) + '.gif') for  i  in  range(3)]
-        # self.imgs_positive = [PhotoImage(file='../Label/' + str(i) + '.gif') for i range(0,1)]
         self.imgs_positive=[]
         self.imgs_negative=[]
         for i in range(0, self.positive_faces):
-            self.imgs_positive.append( PhotoImage(file='./' + 'positive_' + str(i) + '.gif'))
+            img = PhotoImage(file='./' + 'positive_' + str(i) + '.gif')
+            self.imgs_positive.append(img )
 
         for i in range(0, self.negative_faces):
-            self.imgs_negative.append(PhotoImage(file='./' + 'negative_' + str(i) + '.gif'))
+            img = PhotoImage(file='./' + 'negative_' + str(i) + '.gif')
+            self.imgs_negative.append(img)
 
-        #self.imgs_positive = [PhotoImage(file='../Label/green.gif')]
-        #self.imgs_negative = [PhotoImage(file='../Label/red.gif')]
 
+    def __show(self, text):
+        ## First, Time!
+        now_time = time.time()
+        dur = now_time - self.start_time
+        dur = math.ceil(dur)
+        dur_str = "You have Played:  " + str(dur) + " seconds"
+
+        count_success_str = "You have succeed: " + str(self.count_success) + " times"
+        count_str = "You have Played:  " + str(self.count) + " times"
+
+        string = dur_str + '\n' + count_success_str + '\n' + count_str
+
+        text.delete(1.0, 'end')
+        text.insert('end', string)
+        text.after(self.delay, self.__show, text)
 
     def game(self):
         self.root = Tk()
-        self.cv = Canvas(self.root, bg='white', width=self.width_new * X_COUNT, height=self.height_new * Y_COUNT)
+        self.cv = Canvas(self.root, bg='white', width=self.width_new * X_COUNT + self.left_margin, height=self.height_new * Y_COUNT + self.top_margin)
         self.init_faces()
 
         self.show_new()
         self.cv.bind("<Button-1>", self.button_callback)
         self.cv.bind("<Motion>", self.motion_callback)
         self.cv.pack()
+
+        #imgs_negative = PhotoImage(file='./positive_0.gif')
+        #img = imgs_negative.subsample(10)
+        #self.cv.create_image(100,100,image = img)
+
+        self.delay = 200
+        self.text = Text(self.root)
+        self.text.pack()
+        self.__show(self.text, )
+        self.start_time = time.time()
+
         self.root.mainloop()
 
 
