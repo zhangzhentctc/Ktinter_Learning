@@ -38,13 +38,18 @@ class client(threading.Thread):
 
     def run(self):
         while True:
+
             if self.mutex.acquire(1):
+                time_s = time.time()
                 #print("[Client] Get Lock")
                 val = self.fetch_data()
                 #print("[Client] Fetch Data")
+                self.mutex.release()
+                # print("[Client] Release Lock")
+                time_e = time.time()
+                print(str(time_e - time_s))
                 if val != []:
                     print(val)
-                self.mutex.release()
-                #print("[Client] Release Lock")
+
             time.sleep(0.08)
         print("[Client] End")

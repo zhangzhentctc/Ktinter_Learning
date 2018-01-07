@@ -6,7 +6,7 @@ import threading
 import random
 import json
 
-FILE_DFT_NAME = "./test.dat"
+FILE_DFT_NAME = "./tick_store_buff.dat"
 FILE_DFT_SIZE = 1024
 
 RET_ERR = -1
@@ -68,4 +68,3 @@ class store_buffer:
             print("buffer is full!")
         self.mmap.flush()
 
-        

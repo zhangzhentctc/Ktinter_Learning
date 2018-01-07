@@ -46,9 +46,12 @@ class server(threading.Thread):
             if self.mutex.acquire(1):
                 #print("[Server] Get Lock")
                 new_data = self.generate_new_data(i)
+                time_s = time.time()
                 self.send_data(new_data)
+                time_e = time.time()
+                print("[Server]" + str(time_e - time_s))
                 #print("[Server] Send Data")
-                time.sleep(random.random() * 0.8)
+                time.sleep(random.random())
                 #print("[Server] Release Lock")
                 self.mutex.release()
         print("[Server] End")
